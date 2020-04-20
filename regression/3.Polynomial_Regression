@@ -1,0 +1,69 @@
+Polynomial Regression
+多项式回归
+
+直线回归研究的是一个因变量与一个自变量之间的回归问题，但是，在畜禽、水产科学领域的许多实际问题中，影响依变量的自变量往往不止一个，而是多个，
+比如绵羊的产毛量这一变量同时受到绵羊体重、胸围、体长等多个变量的影响，因此需要进行一个依变量与多个自变量间的回归分析，即多元回归分析。
+
+研究一个因变量与一个或多个自变量间多项式的回归分析方法，称为多项式回归（Polynomial Regression）。如果自变量只有一个时，称为一元多项式回归；
+如果自变量有多个时，称为多元多项式回归。在一元回归分析中，如果依变量y与自变量x的关系为非线性的，但是又找不到适当的函数曲线来拟合，
+则可以采用一元多项式回归。
+
+多项式回归的最大优点就是可以通过增加x的高次项对实测点进行逼近，直至满意为止。事实上，多项式回归可以处理相当一类非线性问题，
+它在回归分析中占有重要的地位，因为任一函数都可以分段用多项式来逼近。因此，在通常的实际问题中，不论依变量与其他自变量的关系如何，
+我们总可以用多项式回归来进行分析。
+
+# Importing the libraries
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Importing the dataset
+dataset = pd.read_csv('Position_Salaries.csv')
+X = dataset.iloc[:, 1:2].values#包含自变量的X应该是矩阵，不应该是向量
+y = dataset.iloc[:, 2].values
+
+# Splitting the dataset into the Training set and Test set
+"""from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 0)"""
+
+# Feature Scaling
+"""from sklearn.preprocessing import StandardScaler
+sc_X = StandardScaler()
+X_train = sc_X.fit_transform(X_train)
+X_test = sc_X.transform(X_test)"""
+
+# Fitting Linear Regression to the dataset
+from sklearn.linear_model import LinearRegression
+lin_reg = LinearRegression()
+lin_reg.fit(X, y)
+
+# Fitting Polynomial Regression to the dataset
+from sklearn.preprocessing import PolynomialFeatures
+poly_reg = PolynomialFeatures(degree = 4)
+X_poly = poly_reg.fit_transform(X)
+lin_reg_2 = LinearRegression()
+lin_reg_2.fit(X_poly, y)
+
+# Visualising the Linear Regression results
+plt.scatter(X, y, color = 'red')
+plt.plot(X, lin_reg.predict(X), color = 'blue')
+plt.title('Truth or Bluff (Linear Regression)')
+plt.xlabel('Position Level')
+plt.ylabel('Salary')
+plt.show()
+
+# Visualising the Polynomial Regression results
+X_grid = np.arange(min(X),max(X),0.1)
+X_grid = X_grid.reshape(len(X_grid), 1)
+plt.scatter(X, y, color = 'red')
+plt.plot(X_grid, lin_reg_2.predict(poly_reg.fit_transform(X_grid)), color = 'blue')
+plt.title('Truth or Bluff (Polynomial Regression)')
+plt.xlabel('Position Level')
+plt.ylabel('Salary')
+plt.show()
+
+
+#predicting a new result with linear regression
+lin_reg.predict(6.5)
+#predicting a new result with Polynomial Regression
+lin_reg_2.predict(poly_reg.fit_transform(6.5))
