@@ -1,0 +1,80 @@
+Support Vector Machine (SVM)
+原理：SVM的主要目标是找到最佳超平面，以便在不同类的数据点之间进行正确分类。超平面维度等于输入特征的数量减去1（例如，当使用三个特征时，
+超平面将是二维平面）。为了分离两类数据点，可以选择许多可能的超平面。我们的目标是找到一个具有最大边距的平面，即两个类的数据点之间的最大距离。
+最大化边距的目的是最大概率的对未知的数据点进行正确分类。
+
+超平面是决策边界，有助于对数据点进行分类。落在超平面两侧的数据点可归因于不同的类。此外，超平面的尺寸取决于特征的数量。如果输入要素的数量是2，
+则超平面只是一条线。如果输入要素的数量是3，则超平面变为二维平面。当特征数量超过3时，就超出我们的想象了。
+
+最接近超平面的数据点称为支持向量。支持向量确定超平面的方向和位置，以便最大化分类器边界（以及分类分数）。SVM算法应该使用的支持向量的数量可以根据应用任意选择。
+为了分离两类数据点，可以选择许多可能的超平面。我们的目标是找到一个具有最大边距的平面，即两个类的数据点之间的最大距离。最大化边距的目的是最大概率的对未知的数据点进行正确分类。为了分离两类数据点，可以选择许多可能的超平面。我们的目标是找到一个具有最大边距的平面，即两个类的数据点之间的最大距离。最大化边距的目的是最大概率的对未知的数据点进行正确分类。
+
+
+# Importing the libraries
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Importing the dataset
+dataset = pd.read_csv('Social_Network_Ads.csv')
+X = dataset.iloc[:, [2, 3]].values
+y = dataset.iloc[:, 4].values
+
+# Splitting the dataset into the Training set and Test set
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25, random_state = 0)
+
+# Feature Scaling
+from sklearn.preprocessing import StandardScaler
+sc = StandardScaler()
+X_train = sc.fit_transform(X_train)
+X_test = sc.transform(X_test)
+
+# Fitting SVM to the Training set
+from sklearn.svm import SVC
+classifier = SVC(kernel = 'linear', random_state = 0)
+classifier.fit(X_train, y_train)
+
+# Predicting the Test set results
+y_pred = classifier.predict(X_test)
+
+# Making the Confusion Matrix
+from sklearn.metrics import confusion_matrix
+cm = confusion_matrix(y_test, y_pred)
+cm
+
+# Visualising the Training set results
+from matplotlib.colors import ListedColormap
+X_set, y_set = X_train, y_train
+X1, X2 = np.meshgrid(np.arange(start = X_set[:, 0].min() - 1, stop = X_set[:, 0].max() + 1, step = 0.01),
+                     np.arange(start = X_set[:, 1].min() - 1, stop = X_set[:, 1].max() + 1, step = 0.01))
+plt.contourf(X1, X2, classifier.predict(np.array([X1.ravel(), X2.ravel()]).T).reshape(X1.shape),
+             alpha = 0.75, cmap = ListedColormap(('red', 'green')))
+plt.xlim(X1.min(), X1.max())
+plt.ylim(X2.min(), X2.max())
+for i, j in enumerate(np.unique(y_set)):
+    plt.scatter(X_set[y_set == j, 0], X_set[y_set == j, 1],
+                c = ListedColormap(('orange', 'blue'))(i), label = j)
+plt.title('SVM (Training set)')
+plt.xlabel('Age')
+plt.ylabel('Estimated Salary')
+plt.legend()
+plt.show()
+
+# Visualising the Test set results
+from matplotlib.colors import ListedColormap
+X_set, y_set = X_test, y_test
+X1, X2 = np.meshgrid(np.arange(start = X_set[:, 0].min() - 1, stop = X_set[:, 0].max() + 1, step = 0.01),
+                     np.arange(start = X_set[:, 1].min() - 1, stop = X_set[:, 1].max() + 1, step = 0.01))
+plt.contourf(X1, X2, classifier.predict(np.array([X1.ravel(), X2.ravel()]).T).reshape(X1.shape),
+             alpha = 0.75, cmap = ListedColormap(('red', 'green')))
+plt.xlim(X1.min(), X1.max())
+plt.ylim(X2.min(), X2.max())
+for i, j in enumerate(np.unique(y_set)):
+    plt.scatter(X_set[y_set == j, 0], X_set[y_set == j, 1],
+                c = ListedColormap(('orange', 'blue'))(i), label = j)
+plt.title('SVM (Test set)')
+plt.xlabel('Age')
+plt.ylabel('Estimated Salary')
+plt.legend()
+plt.show()
